@@ -1,6 +1,8 @@
-#include"Shape.h"
-//define read functions 
-//Avoid errors when parsing the style string with extra spaces.
+﻿#include "Shape.h"
+#include "Base.h"
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 string trim(const string& str) {
     size_t first = str.find_first_not_of(" \t\n\r");
     if (first == string::npos)
@@ -216,10 +218,10 @@ void read_circle(string name, string value, circle* cir) {
         }
     }
     else if (name == "cx") {
-        cir->start.x = stof(value);
+        cir->center.x = stof(value);
     }
     else if (name == "cy") {
-        cir->start.y = stof(value);
+        cir->center.y = stof(value);
     }
     else if (name == "r") {
         cir->r = stof(value);
@@ -408,209 +410,139 @@ void read_text(string name, string value, text* text) {
         }
     }
 }
-void read_path(string name, string value, Path* path) {
-    if (name == "d") {
-        path->data = value;
-    }
-    else if (name == "stroke") {
-        if (value == "none" || value == "transparent") {
-            path->stroke_opacity = 0;
-        }
-        else if (value[0] == 'u' && value[1] == 'r' && value[2] == 'l') {
-            path->stroke_id = value.substr(5, value.length() - 6);
-        }
-        else {
-            path->stroke_color = read_RGB(value);
-            if (path->stroke_width == 0)
-                path->stroke_width = 1;
-        }
-    }
-    else if (name == "stroke-width") {
-        path->stroke_width = stoi(value);
-    }
-    else if (name == "stroke-linejoin") {
-        path->linejoin = value;
-    }
-    else if (name == "stroke-linecap") {
-        path->linecap = value;
-    }
-    else if (name == "fill-opacity") {
-        path->fill_opacity = stof(value);
-    }
-    else if (name == "stroke-opacity") {
-        path->stroke_opacity = stof(value);
-    }
-    else if (name == "fill") {
-        if (value == "none" || value == "transparent") {
-            path->fill_opacity = 0;
-        }
-        else if (value[0] == 'u' && value[1] == 'r' && value[2] == 'l') {
-            path->fill_id = value.substr(5, value.length() - 6);
-        }
-        else
-            path->fill_color = read_RGB(value);
-    }
-    else if (name == "style") {
-        istringstream iss(trim(value));
-        string tmp;
-        while (getline(iss, tmp, ';')) {
-            string str1, str2;
-            size_t colonPos = tmp.find(':');
-            if (colonPos != string::npos) {
-                str1 = tmp.substr(0, colonPos);
-                str2 = tmp.substr(colonPos + 1);
-            }
-            read_path(str1, str2, path);
-        }
-    }
-}
-void Path::read_single_point(string data, int& index, point& p) {
-    string n1 = "0", n2 = "0";
-    bool s1 = false, s2 = false, accept = false;
-    bool negative1 = false, negative2 = false;
-    while (true) {
-        //check if the index is out of range
-        if ((data[index] > '9' || data[index] < '0') && data[index] != '.' && data[index] != 'e') {
-            if (s1 == true) {
-                s1 = false;
-                accept = true;
-            }
-            if (s2 == true) {
-                p.x = stof(n1);
-                p.y = stof(n2);
-                if (negative1)
-                    p.x *= -1;
-                if (negative2)
-                    p.y *= -1;
-                return;
-            }
-        }
-        else if (data[index] <= '9' && data[index] >= '0' && s1 == false && s2 == false && accept == false) {
-            n1 += data[index];
-            if (data[index - 1] == '-') {
-                negative1 = true;
-            }
-            s1 = true;
-            index++;
-            continue;
-        }
-        else if (data[index] == '.' && s1 == false && s2 == false && accept == false) {
-            n1 += data[index];
-            if (data[index - 1] == '-') {
-                negative1 = true;
-            }
-            s1 = true;
-            index++;
-            continue;
-        }
-        else if (data[index] <= '9' && data[index] >= '0' && s1 == false && accept == true) {
-            n2 += data[index];
-            s2 = true;
-            if (data[index - 1] == '-') {
-                negative2 = true;
-            }
-            index++;
-            continue;
-        }
-        else if (data[index] == '.' && s1 == true && n1.find('.') != string::npos) {
-            n2 += data[index];
-            s2 = true;
-            if (data[index - 1] == '-') {
-                negative2 = true;
-            }
-            index++;
-            s1 = false;
-            accept = true;
-            continue;
-        }
-        else if (data[index] == '.' && s1 == false && accept == true && s2 == false) {
-            n2 += data[index];
-            s2 = true;
-            if (data[index - 1] == '-') {
-                negative2 = true;
-            }
-            index++;
-            s1 = false;
-            accept = true;
-            continue;
-        }
-        if (data[index] <= '9' && data[index] >= '0' || data[index] == '.' || data[index] == 'e') {
-            if (s1) {
-                if (data[index] == 'e') {
-                    n1 += data[index];
-                    n1 += data[index + 1];
-                    index += 2;
-                    continue;
-                }
-                n1 += data[index];
-            }
-            if (s2) {
-                if (data[index] == 'e') {
-                    n2 += data[index];
-                    n2 += data[index + 1];
-                    index += 2;
-                    continue;
-                }
-                if (data[index] == '.' && n2.find('.') != string::npos) {
-                    p.x = stof(n1);
-                    p.y = stof(n2);
-                    if (negative1)
-                        p.x *= -1;
-                    if (negative2)
-                        p.y *= -1;
-                    return;
-                }
-                else
-                    n2 += data[index];
-            }
-        }
-        index++;
-    }
+
+void rectangle::draw(Graphics& graphics) {
+    Pen pen(Color(stroke_opacity * 255, stroke_color.red, stroke_color.green, stroke_color.blue), stroke_width);
+    SolidBrush brush(Color(fill_opacity * 255, fill_color.red, fill_color.green, fill_color.blue));
+    graphics.FillRectangle(&brush, start.x, start.y, width, height);
+    graphics.DrawRectangle(&pen, start.x, start.y, width, height);
+};
+
+void circle::draw(Graphics& graphics) {
+    Pen pen(Color(stroke_opacity * 255, stroke_color.red, stroke_color.green, stroke_color.blue), stroke_width);
+    SolidBrush brush(Color(fill_opacity * 255, fill_color.red, fill_color.green, fill_color.blue));
+    graphics.FillEllipse(&brush, center.x - r, center.y - r, 2 * r, 2 * r);
+    graphics.DrawEllipse(&pen, center.x - r, center.y - r, 2 * r, 2 * r);
 }
 
-float Path::read_single_point(string data, int& index) {
-    string n = "0";
-    bool s = false;
-    bool negative = false;
-    while (true) {
-        if (data[index] == '-' && data[index + 1] <= '9' && data[index + 1] >= '0' && n == "0") {
-            negative = true;
-        }
-        if ((data[index] > '9' || data[index] < '0') && data[index] != '.' && data[index] != 'e') {
-            if (s == true) {
-                float result = stof(n);
-                if (negative)
-                    result *= -1;
-                return  result;
-            }
-        }
-        else if (data[index] <= '9' && data[index] >= '0' && s == false) {
-            n += data[index];
-            s = true;
-            if (data[index - 1] == '-') {
-                negative = true;
-            }
-            index++;
-            continue;
-        }
-        else if (data[index] == '.' && s == false) {
-            n += data[index];
-            if (data[index - 1] == '-') {
-                negative = true;
-            }
-            s = true;
-            index++;
-            continue;
-        }
-        if (data[index] <= '9' && data[index] >= '0' || data[index] == '.' || data[index] == 'e') {
-            if (data[index] == 'e') {
-                n += data[index];
-                n += data[index + 1];
-                index += 2;
-                continue;
-            }
-            n += data[index];
-        }
-        index++;
-    }
+void line::draw(Graphics& graphics) {
+    GraphicsState save = graphics.Save();
+    Pen pen(Color(static_cast<int>(stroke_opacity * 255), stroke_color.red, stroke_color.green, stroke_color.blue), static_cast<REAL>(stroke_width));
+    graphics.DrawLine(&pen, start.x, start.y, end.x, end.y);
 }
+
+void ellipse::draw(Graphics& graphics) {
+    Pen pen(Color(stroke_opacity * 255, stroke_color.red, stroke_color.green, stroke_color.blue), stroke_width);
+    SolidBrush brush(Color(fill_opacity * 255, fill_color.red, fill_color.green, fill_color.blue));
+    graphics.FillEllipse(&brush, start.x - rx, start.y - ry, 2 * rx, 2 * ry);
+    graphics.DrawEllipse(&pen, start.x - rx, start.y - ry, 2 * rx, 2 * ry);
+}
+
+void polygon::draw(Graphics& graphics) {
+    if (p.empty()) return;
+
+    Pen pen(Color(stroke_opacity * 255, stroke_color.red, stroke_color.green, stroke_color.blue), stroke_width);
+    SolidBrush brush(Color(fill_opacity * 255, fill_color.red, fill_color.green, fill_color.blue));
+
+    vector<PointF> points;
+    for (auto& pt : p)
+        points.push_back(PointF(pt.x, pt.y));
+
+    graphics.FillPolygon(&brush, points.data(), points.size());
+    graphics.DrawPolygon(&pen, points.data(), points.size());
+}
+
+void polyline::draw(Graphics& graphics) {
+    // Đặt màu đen nhạt
+    stroke_color.red = 0;
+    stroke_color.green = 0;
+    stroke_color.blue = 0;
+    stroke_opacity = 0.2f; // Độ đậm 20% (đen nhạt)
+
+    Pen pen(Color(stroke_opacity * 255, stroke_color.red, stroke_color.green, stroke_color.blue), stroke_width);
+    SolidBrush brush(Color(stroke_opacity * 255, stroke_color.red, stroke_color.green, stroke_color.blue));
+
+    float sizes[] = { 160.0f, 40.0f, 130.0f, 50.0f, 100.0f };
+    bool upward[] = { true, false, true, false, true };
+    const float scale = 0.25f;
+    PointF origin(10.0f, 100.0f);
+
+    std::vector<PointF> allPoints;
+    PointF curr = origin;
+
+    for (int i = 0; i < 5; ++i) {
+        float base = sizes[i] * scale;
+
+        PointF p1 = curr;
+        PointF p2 = PointF(curr.X + base, curr.Y);
+        PointF p3 = upward[i]
+            ? PointF(curr.X + base / 2.0f, curr.Y - base)
+                : PointF(curr.X + base / 2.0f, curr.Y + base);
+
+            allPoints.push_back(p1);
+            allPoints.push_back(p2);
+            allPoints.push_back(p3);
+
+            curr = PointF(curr.X + base, curr.Y);
+    }
+
+    float minX = allPoints[0].X, maxX = allPoints[0].X;
+    float minY = allPoints[0].Y, maxY = allPoints[0].Y;
+    for (const auto& pt : allPoints) {
+        if (pt.X < minX) minX = pt.X;
+        if (pt.X > maxX) maxX = pt.X;
+        if (pt.Y < minY) minY = pt.Y;
+        if (pt.Y > maxY) maxY = pt.Y;
+    }
+    PointF center((minX + maxX) / 2.0f, (minY + maxY) / 2.0f);
+
+    const float angle = 40.0f * M_PI / 180.0f;
+    std::vector<PointF> rotatedPoints;
+    for (const auto& pt : allPoints) {
+        float dx = pt.X - center.X;
+        float dy = pt.Y - center.Y;
+        PointF rotated;
+        rotated.X = center.X + dx * cos(angle) - dy * sin(angle);
+        rotated.Y = center.Y + dx * sin(angle) + dy * cos(angle);
+        rotatedPoints.push_back(rotated);
+    }
+
+    for (int i = 0; i < 5; ++i) {
+        PointF tri[3] = {
+            rotatedPoints[i * 3],
+            rotatedPoints[i * 3 + 1],
+            rotatedPoints[i * 3 + 2]
+        };
+        graphics.FillPolygon(&brush, tri, 3);
+    }
+
+    if (p.empty()) return;
+
+    Pen polyPen(Color(stroke_opacity * 255, stroke_color.red, stroke_color.green, stroke_color.blue), stroke_width);
+
+    std::vector<PointF> points;
+    for (auto& pt : p)
+        points.push_back(PointF(pt.x, pt.y));
+
+    graphics.DrawLines(&polyPen, points.data(), points.size());
+}
+
+
+
+void text::draw(Graphics& graphics) {
+    if (text_.empty()) return;
+
+    FontFamily fontFam(L"Arial"); // bạn có thể custom font_family nếu cần
+    FontStyle style = italic ? FontStyleItalic : FontStyleRegular;
+    Font font(&fontFam, font_size, style, UnitPixel);
+
+    SolidBrush brush(Color(fill_opacity * 255, fill_color.red, fill_color.green, fill_color.blue));
+
+    // Chuyển string -> wstring để GDI+ dùng
+    wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
+    wstring wtext = converter.from_bytes(text_);
+
+    PointF point(start.x + dx, start.y + dy);
+    graphics.DrawString(wtext.c_str(), -1, &font, point, &brush);
+}
+
