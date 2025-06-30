@@ -1,0 +1,23 @@
+<svg width="963" height="426" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+ <g class="layer">
+  <title>Layer 1</title>
+  <rect fill-opacity="0.01" height="400" id="svg_1" stroke="rgb(200,200,200)" stroke-width="2" width="800" x="25" y="25"/>
+  <rect fill="rgb(200,100,150)" fill-opacity="0.2" height="400" id="svg_2" stroke="rgb(55,55,55)" stroke-width="2" width="800" x="20" y="20"/>
+  <text fill="rgb(0,0,255)" font-size="40" id="svg_3" x="0" y="0">SVG Demo</text>
+  <rect fill-opacity="0" height="50" id="svg_4" stroke="rgb(255,0,0)" stroke-width="2" width="200" x="0" y="0"/>
+  <text fill="rgb(255,0,255)" font-size="30" id="svg_5" x="400" y="400">Nguyen Van A</text>
+  <circle cx="200" cy="300" fill="rgb(255, 255, 0)" fill-opacity="0.5" id="svg_6" r="100" stroke="rgb(0, 255, 255)" stroke-opacity="0.7" stroke-width="10"/>
+  <polyline fill="rgb(0, 255, 255)" fill-opacity="0.5" id="svg_7" points="5,37 15,37 15,32 25,32 25,37 35,37 35,25 45,25 45,37 55,37 55,17 65,17 65,37 75,37 75,10 85,10 85,37 95,37 95,2 105,2 105,37 115,37" stroke="rgb(255, 0, 0)" stroke-opacity="0.7" stroke-width="2"/>
+  <ellipse cx="500" cy="100" fill="rgb(0, 255, 0)" fill-opacity="0.5" id="svg_8" rx="100" ry="50" stroke="rgb(255, 255, 0)" stroke-opacity="0.7" stroke-width="3"/>
+  <line id="svg_9" stroke="rgb(0, 0, 255)" stroke-opacity="0.7" stroke-width="5" x1="10" x2="30" y1="30" y2="10"/>
+  <line id="svg_10" stroke="rgb(0, 0, 255)" stroke-opacity="0.8" stroke-width="10" x1="30" x2="50" y1="30" y2="10"/>
+  <line id="svg_11" stroke="rgb(0, 0, 255)" stroke-opacity="0.9" stroke-width="15" x1="50" x2="70" y1="30" y2="10"/>
+  <line id="svg_12" stroke="rgb(0, 0, 255)" stroke-opacity="0.9" stroke-width="20" x1="70" x2="90" y1="30" y2="10"/>
+  <line id="svg_13" stroke="rgb(0, 0, 255)" stroke-opacity="1" stroke-width="25" x1="90" x2="110" y1="30" y2="10"/>
+  <polygon fill="rgb(153, 204, 255)" fill-opacity="0.5" id="svg_14" points="850,75 958,137 958,262 850,325 742,262 742,137" stroke="rgb(255, 0, 102)" stroke-opacity="0.7" stroke-width="10"/>
+  <polygon fill="rgb(255, 255, 0)" fill-opacity="0.6" id="svg_15" points="350,75 379,161 469,161 397,215 423,301 350,250 277,301 303,215 231,161 321,161" stroke="rgb(255, 0, 0)" stroke-opacity="0.7" stroke-width="10"/>
+  <polyline fill-opacity="0.5" id="svg_16" points="0,40 40,40 40,80 80,80 80,120 120,120 120,140"/>
+  <path d="M19.375 36.7818V100.625C19.375 102.834 21.1659 104.625 23.375 104.625H87.2181C90.7818 104.625 92.5664 100.316 90.0466 97.7966L26.2034 33.9534C23.6836 31.4336 19.375 33.2182 19.375 36.7818Z" fill="white"/>
+
+ </g>
+</svg>
