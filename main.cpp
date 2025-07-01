@@ -1,140 +1,103 @@
-﻿#include "Shape.h"
-#include <vector>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include "rapidxml.hpp"
-#include "Base.h"
+﻿#include "Base.h"
+#include "Shape.h"
+#include "Renderer.h"
 
-using namespace std;
-using namespace rapidxml;
+// Biến GDI+
+ULONG_PTR gdiplusToken;
+Renderer renderer;
 
-vector<shape*> parseSVG(const string& filename) {
-    vector<shape*> elements;
-
-    ifstream file(filename);
-    if (!file) return elements;
-
-    stringstream buffer;
-    buffer << file.rdbuf();
-    string content = buffer.str();
-
-    vector<char> xml_copy(content.begin(), content.end());
-    xml_copy.push_back('\0');
-
-    xml_document<> doc;
-    doc.parse<0>(&xml_copy[0]);
-
-    xml_node<>* svg = doc.first_node("svg");
-    if (!svg) return elements;
-
-    // Tìm node <g> bên trong <svg>
-    xml_node<>* g = svg->first_node("g");
-    if (!g) return elements;
-
-    // Duyệt qua từng node con của <g>
-    for (xml_node<>* node = g->first_node(); node; node = node->next_sibling()) {
-        string tag = node->name();
-
-        if (tag == "circle") {
-            circle* cir = new circle();
-            for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
-                read_circle(attr->name(), attr->value(), cir);
-            }
-            elements.push_back(cir);
-        }
-        else if (tag == "rect") {
-            rectangle* rect = new rectangle();
-            for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
-                read_rectangle(attr->name(), attr->value(), rect);
-            }
-            elements.push_back(rect);
-        }
-        else if (tag == "ellipse") {
-            ellipse* elli = new ellipse();
-            for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
-                read_ellipse(attr->name(), attr->value(), elli);
-            }
-            elements.push_back(elli);
-        }
-        else if (tag == "line") {
-            line* ln = new line();
-            for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
-                read_line(attr->name(), attr->value(), ln);
-            }
-            elements.push_back(ln);
-        }
-        else if (tag == "polygon") {
-            polygon* poly = new polygon();
-            for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
-                read_polygon(attr->name(), attr->value(), poly);
-            }
-            elements.push_back(poly);
-        }
-        else if (tag == "polyline") {
-            polyline* pl = new polyline();
-            for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
-                read_polyline(attr->name(), attr->value(), pl);
-            }
-            elements.push_back(pl);
-        }
-        else if (tag == "text") {
-            text* txt = new text();
-            for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
-                read_text(attr->name(), attr->value(), txt);
-            }
-            if (node->value())
-                txt->text_ = node->value();
-            elements.push_back(txt);
-        }
-        else if (tag == "path") {
-            Path* p = new Path();
-            for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
-                read_path(attr->name(), attr->value(), p);
-            }
-            elements.push_back(p);
-        }
-        return elements;
-    }
+// Hàm xử lý vẽ
+VOID OnPaint(HDC hdc) {
+    Graphics graphics(hdc);
+    RECT rect;
+    GetClientRect(WindowFromDC(hdc), &rect);
+    int width = rect.right - rect.left;
+    int height = rect.bottom - rect.top;
+    renderer.render(graphics, width, height);
 }
-int main() {
-    ifstream file("sample.svg"); // đổi tên file SVG cho đúng
-    if (!file) {
-        cout << "Không mở được file SVG!\n";
-        return 1;
-    }
 
-    stringstream buffer;
-    buffer << file.rdbuf();
-    string content = buffer.str();
-    vector<char> xml_copy(content.begin(), content.end());
-    xml_copy.push_back('\0');
-
-    xml_document<> doc;
-    try {
-        doc.parse<0>(&xml_copy[0]);
+// Hàm Window Procedure
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    case WM_COMMAND:
+    {
+        int wmId = LOWORD(wParam);
+        switch (wmId)
+        {
+        case IDM_ABOUT:
+            MessageBox(hWnd, TEXT("SVG Viewer\n(c) 2024"), TEXT("About"), MB_OK | MB_ICONINFORMATION);
+            break;
+        case IDM_EXIT:
+            PostQuitMessage(0);
+            break;
+        }
     }
-    catch (...) {
-        cout << "Lỗi khi parse file SVG!\n";
-        return 1;
-    }
+    break;
 
-    xml_node<>* svg = doc.first_node("svg");
-    if (!svg) {
-        cout << "Không tìm thấy tag <svg>!\n";
-        return 1;
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
+        OnPaint(hdc);
+        EndPaint(hWnd, &ps);
     }
+    break;
 
-    xml_node<>* g = svg->first_node("g");
-    if (!g) {
-        cout << "Không tìm thấy tag <g> bên trong <svg>!\n";
-        return 1;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
     }
-
-    cout << "Tìm thấy <svg> và <g>. Các phần tử con của <g> là:\n";
-    for (xml_node<>* node = g->first_node(); node; node = node->next_sibling()) {
-        cout << "- " << node->name() << "\n";
-    }
-
     return 0;
+}
+
+// Entry point WinMain
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
+{
+    // Khởi động GDI+
+    GdiplusStartupInput gdiplusStartupInput;
+    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
+    // Đăng ký lớp cửa sổ
+    WNDCLASS wc = {};
+    wc.lpfnWndProc = WndProc;
+    wc.hInstance = hInstance;
+    wc.lpszClassName = L"MyWindowClass";
+    wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SVGDEMO));        // icon từ resource.h
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wc.lpszMenuName = MAKEINTRESOURCE(IDR_MAINFRAME);                    // menu từ resource.h
+
+    RegisterClass(&wc);
+
+    // Tạo cửa sổ
+    HWND hWnd = CreateWindowEx(
+        0, L"MyWindowClass", L"SVG Viewer",
+        WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1000, 600,
+        NULL, NULL, hInstance, NULL);
+
+    if (!hWnd) return 0;
+
+    ShowWindow(hWnd, nCmdShow);
+    UpdateWindow(hWnd);
+
+    // Load file SVG vào renderer
+    renderer.loadSVG("mediator7.svg");    
+
+    // Vòng lặp message
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
+    // Giải phóng GDI+
+    GdiplusShutdown(gdiplusToken);
+
+    return (int)msg.wParam;
 }
