@@ -64,8 +64,15 @@ vector<shape*> parseSVG(const string& filename) {
         }
         else if (tag == "polyline") {
             polyline* pl = new polyline();
+            bool hasFill = false;
             for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
-                read_polyline(attr->name(), attr->value(), pl);
+                read_polyline(attr->name(), attr->value(), pl, hasFill);
+            }
+            if (!hasFill && pl->fill_opacity > 0) {
+                pl->fill_color.red = 0;
+                pl->fill_color.green = 0;
+                pl->fill_color.blue = 0;
+                pl->closed = true;
             }
             elements.push_back(pl);
         }
@@ -77,13 +84,6 @@ vector<shape*> parseSVG(const string& filename) {
             if (node->value())
                 txt->text_ = node->value();
             elements.push_back(txt);
-        }
-        else if (tag == "path") {
-            path* pth = new path();
-            for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
-                read_path(attr->name(), attr->value(), pth);
-            }
-            elements.push_back(pth);
         }
     }
 

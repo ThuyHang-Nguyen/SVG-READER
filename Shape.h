@@ -1,4 +1,4 @@
-#ifndef SHAPE_H
+﻿#ifndef SHAPE_H
 #define SHAPE_H
 #include "Base.h"
 
@@ -60,8 +60,11 @@ public:
 class polyline : public shape {
 public:
 	vector<point> p;
+	bool closed = false;  // <-- Thêm thuộc tính mới
+
 	void draw(Graphics& graphics) override;
 };
+
 
 class text : public shape {
 public:
@@ -88,7 +91,7 @@ void read_rectangle(string name, string value, rectangle* rect);
 void read_ellipse(string name, string value, ellipse* elli);
 void read_circle(string name, string value, circle* cir);
 void read_polygon(string name, string value, polygon* polygon);
-void read_polyline(string name, string value, polyline* polyline);
+void read_polyline(string name, string value, polyline* polyline, bool& hasFillAttr);
 void read_text(string name, string value, text* text);
 
 #endif
