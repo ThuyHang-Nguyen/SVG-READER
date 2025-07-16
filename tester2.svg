@@ -1,0 +1,18 @@
+<svg width="963" height="426" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+	<g class="layer">
+		<title>Layer 1</title>
+		<polygon style="fill:#E53935;" points="161.905,42.857 0,204.762 85.714,290.476 247.619,128.571 233.333,57.143"/>
+
+		<!-- Ký hiệu cũ -->
+		<polygon style="fill:#333333;"/>
+
+
+		<!-- Thêm khuyên (lỗ tag) -->
+		<circle cx="241" cy="50" r="10" fill="#FFFFFF" stroke="#000" stroke-width="2"/>
+		<polygon points="130,115 140,145 170,145 145,165 155,195 130,177.5 105,195 115,165 90,145 120,145
+
+"
+		  fill="#F9BA48" stroke="#000" stroke-width="2"/>
+		/>
+	</g>
+</svg>
