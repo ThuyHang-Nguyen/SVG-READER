@@ -77,7 +77,7 @@
 
 		<!-- Chân đế (polygon) -->
 		<polygon points="90,275 110,275 120,290 80,290" fill="rgb(50,50,50)" stroke="black" stroke-width="2"/>
-		<text x="50" y="120"
+		<text x="100" y="120"
 			  font-family="Roboto Serif"
 			  font-size="25"
 			  fill="black">
