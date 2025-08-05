@@ -1,4 +1,37 @@
-﻿#include"Base.h"
+﻿//BaseComponent.cpp contains all functions for read color and point and some support functions for general use
+#include"Base.h"
+//support functions
+string trim(string str) {
+    str.erase(remove_if(str.begin(), str.end(), ::isspace), str.end());
+    return str;
+}
+
+bool check(char a) {
+    if (a <= 'Z' && a >= 'A')
+        return true;
+    if (a <= 'z' && a >= 'a')
+        return true;
+    if (a <= '9' && a >= '0')
+        return true;
+    if (a == '(' || a == ')')
+        return true;
+    return false;
+}
+
+void remove_space(string& s) {
+    for (int i = 1; i < s.length() - 1; i++) {
+        if (!check(s[i])) {
+            if (s[i - 1] <= '9' && s[i - 1] >= '0' && ((s[i + 1] <= '9' && s[i + 1] >= '0') || s[i + 1] == '-' || s[i + 1] == '.') && s[i] != '.') {
+                s[i] = ',';
+                continue;
+            }
+            else if (s[i] != '.' && s[i] != '-') {
+                s.erase(i, 1);
+                i--;
+            }
+        }
+    }
+}
 
 float clarifyFloat(string s) {
     if (s[0] == '.') {
