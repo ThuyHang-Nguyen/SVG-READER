@@ -52,9 +52,9 @@ public:
 
 //read functions
 //support functions
-//string trim(string str);
-//bool check(char a);
-//void remove_space(string& s);
+string trim(string str);
+bool check(char a);
+void remove_space(string& s);
 float clarifyFloat(string s);
 
 //read color funtion
