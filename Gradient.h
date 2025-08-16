@@ -1,5 +1,6 @@
 //Gradient.h declares hierarchy of classes for storing gradient information and related functions.
-#pragma once
+#ifndef GRADIENT_H
+#define GRADIENT_H
 #include "Viewbox.h"
 class stop {
 public:
@@ -11,3 +12,43 @@ public:
 		stop_opacity = 1;
 	}
 };
+
+class Gradient {
+public:
+	vector<stop> stop_list;
+	multi_transform trans;
+	float* get_point_list();
+	Color* get_color_list();
+};
+
+class linearGradient : public Gradient {
+public:
+	string id;
+	point start, end;
+	string units;
+	bool percentage;
+};
+
+class radialGradient : public Gradient {
+public:
+	string id;
+	point center;
+	float r, fx, fy;
+	string units, xlink_href;
+	radialGradient() {
+		r = fx = fy = 0;
+		xlink_href = "";
+	}
+};
+
+class defs {
+public:
+	vector<linearGradient> lg_list;
+	vector<radialGradient> rg_list;
+};
+
+//read function
+void readStop(const std::string& name, const std::string& value, stop& stop);
+void readLinearGradient(const std::string& name, const std::string& value, linearGradient& lg);
+void readRadialGradient(const std::string& name, const std::string& value, radialGradient& rg);
+#endif // !GRADIENT_H
